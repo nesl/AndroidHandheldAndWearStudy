@@ -1,4 +1,4 @@
-package ucla.nesl.calculateprimenumbers;
+package ucla.nesl.calculateprimenumbers.services;
 
 import android.app.Service;
 import android.content.Context;
@@ -26,7 +26,7 @@ public class PrimeCalculationService extends Service {
 
 
     public class MyBinder extends Binder {
-        PrimeCalculationService getService() {
+        public PrimeCalculationService getService() {
             return PrimeCalculationService.this;
         }
     }

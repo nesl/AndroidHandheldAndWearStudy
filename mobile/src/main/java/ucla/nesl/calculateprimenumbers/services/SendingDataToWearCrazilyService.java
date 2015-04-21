@@ -1,4 +1,4 @@
-package ucla.nesl.calculateprimenumbers;
+package ucla.nesl.calculateprimenumbers.services;
 
 import android.app.Service;
 import android.content.Context;
@@ -20,7 +20,7 @@ import com.google.android.gms.wearable.Wearable;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
-public class SendingDataCrazilyService extends Service implements
+public class SendingDataToWearCrazilyService extends Service implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
@@ -33,7 +33,7 @@ public class SendingDataCrazilyService extends Service implements
 
     private PrintWriter writer;
 
-    public SendingDataCrazilyService() {
+    public SendingDataToWearCrazilyService() {
     }
 
 
@@ -45,8 +45,8 @@ public class SendingDataCrazilyService extends Service implements
 
 
     public class MyBinder extends Binder {
-        SendingDataCrazilyService getService() {
-            return SendingDataCrazilyService.this;
+        public SendingDataToWearCrazilyService getService() {
+            return SendingDataToWearCrazilyService.this;
         }
     }
 

@@ -1,4 +1,4 @@
-package ucla.nesl.calculateprimenumbers;
+package ucla.nesl.calculateprimenumbers.services;
 
 import android.app.Service;
 import android.content.Context;

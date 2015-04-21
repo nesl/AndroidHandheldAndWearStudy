@@ -24,7 +24,7 @@
         </activity>
 
         <service
-            android:name=".PrimeCalculationService"
+            android:name=".services.PrimeCalculationService"
             android:enabled="true"
             android:exported="true" >
         </service>
@@ -37,12 +37,12 @@
             </intent-filter>
         </service>
         <service
-            android:name=".ReadWriteFileCrazilyService"
+            android:name=".services.ReadWriteFileCrazilyService"
             android:enabled="true"
             android:exported="true" >
         </service>
         <service
-            android:name=".SensorService"
+            android:name=".services.SensorService"
             android:enabled="true"
             android:exported="true" >
         </service>

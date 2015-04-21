@@ -1,4 +1,4 @@
-package ucla.nesl.calculateprimenumbers;
+package ucla.nesl.calculateprimenumbers.services;
 
 import android.app.Service;
 import android.content.Context;
@@ -11,7 +11,6 @@ import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
-
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -114,6 +113,7 @@ public class SensorService extends Service implements SensorEventListener {
         gyroscopeSensor                 = acquireAndRegisterAndLog(SENS_GYROSCOPE,                   "gyroscope",                SensorManager.SENSOR_DELAY_FASTEST);
         magneticFieldSensor             = acquireAndRegisterAndLog(SENS_MAGNETIC_FIELD,              "magnetic field",           SensorManager.SENSOR_DELAY_FASTEST);
         stepCounterSensor               = acquireAndRegisterAndLog(SENS_STEP_COUNTER,                "step counter",             SensorManager.SENSOR_DELAY_FASTEST);
+        heartrateSensor                 = acquireAndRegisterAndLog(SENS_HEARTRATE,                   "heart rate",               SensorManager.SENSOR_DELAY_FASTEST);
         //ambientTemperatureSensor        = acquireAndRegisterAndLog(SENS_AMBIENT_TEMPERATURE,         "ambient temperature",      SensorManager.SENSOR_DELAY_FASTEST);
         //gameRotationVectorSensor        = acquireAndRegisterAndLog(SENS_GAME_ROTATION_VECTOR,        "game rotation vector",     SensorManager.SENSOR_DELAY_FASTEST);
         //geomagneticSensor               = acquireAndRegisterAndLog(SENS_GEOMAGNETIC,                 "geomagnetic",              SensorManager.SENSOR_DELAY_FASTEST);
@@ -129,7 +129,6 @@ public class SensorService extends Service implements SensorEventListener {
         //rotationVectorSensor            = acquireAndRegisterAndLog(SENS_ROTATION_VECTOR,             "rotation vector",          SensorManager.SENSOR_DELAY_FASTEST);
         //significantMotionSensor         = acquireAndRegisterAndLog(SENS_SIGNIFICANT_MOTION,          "significant motion",       SensorManager.SENSOR_DELAY_FASTEST);
         //stepDetectorSensor              = acquireAndRegisterAndLog(SENS_STEP_DETECTOR,               "step detector",            SensorManager.SENSOR_DELAY_FASTEST);
-        //heartrateSensor                 = acquireAndRegisterAndLog(SENS_HEARTRATE,                   "heart rate",               SensorManager.SENSOR_DELAY_FASTEST);
         //mHeartrateSensor = mSensorManager.getDefaultSensor(SENS_HEARTRATE);
 
 

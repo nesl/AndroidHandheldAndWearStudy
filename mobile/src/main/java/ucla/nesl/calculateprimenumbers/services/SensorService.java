@@ -1,4 +1,4 @@
-package ucla.nesl.calculateprimenumbers;
+package ucla.nesl.calculateprimenumbers.services;
 
 import android.app.Service;
 import android.content.Context;
@@ -11,6 +11,7 @@ import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
+
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.HashMap;
