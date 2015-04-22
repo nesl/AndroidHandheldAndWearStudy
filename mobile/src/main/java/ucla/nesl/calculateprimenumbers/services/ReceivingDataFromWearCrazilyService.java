@@ -1,51 +1,63 @@
-package ucla.nesl.calculateprimenumbers.activities;
+package ucla.nesl.calculateprimenumbers.services;
 
-import android.app.Activity;
+import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Bundle;
+import android.os.Binder;
+import android.os.IBinder;
+import android.os.PowerManager;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
-import android.widget.TextView;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
-import ucla.nesl.calculateprimenumbers.R;
+public class ReceivingDataFromWearCrazilyService extends Service {
+    private final IBinder mBinder = new MyBinder();
+    //private final String PATH_AGREEMENT_WITH_WEAR = "/message_path";
 
-/**
- * Created by timestring on 4/21/15.
- */
-public class ReceivingDataFromWatchCrazilyActivity extends Activity {
+    private PrintWriter writer;
 
-    private TextView mTextView;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub);
-        stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
-            @Override
-            public void onLayoutInflated(WatchViewStub stub) {
-                mTextView = (TextView) stub.findViewById(R.id.text);
-                mTextView.setText("waiting...");
-            }
-        });
-        //Intent intent = new Intent(MainActivity.this, PrimeCalculationService.class);
-        //startService(intent);
+    public IBinder onBind(Intent intent) {
+        Log.i("Service", "onBind");
+        return mBinder;
+    }
 
 
+    public class MyBinder extends Binder {
+        public ReceivingDataFromWearCrazilyService getService() {
+            return ReceivingDataFromWearCrazilyService.this;
+        }
+    }
+
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return START_NOT_STICKY;  // Alternative, START_NOT_STICKY, START_REDELIVER_INTENT
+    }
+
+    @Override
+    public void onCreate() {
+        Log.i("Service", "onCreate (receive)");
+
+        // acquire wake lock
+        PowerManager.WakeLock wakeLock ;
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wakeLock = pm.newWakeLock( PowerManager.PARTIAL_WAKE_LOCK, "My wakelook");
+        wakeLock.acquire();
+
+        // mount the receiver so that we can hear the message from the watch
         IntentFilter messageFilter = new IntentFilter(Intent.ACTION_SEND);
         MessageReceiver messageReceiver = new MessageReceiver();
         LocalBroadcastManager.getInstance(this).registerReceiver(messageReceiver, messageFilter);
-        Log.i("Wear", "Main activity onCreate()");
 
+        // open the log file
         long now = System.currentTimeMillis();
-        String fileName = "/sdcard/check_recv_" + now + ".txt";
+        String fileName = "/sdcard/check_receive_" + now + ".txt";
         try {
             writer = new PrintWriter(fileName);
         } catch (FileNotFoundException e) {
@@ -53,7 +65,7 @@ public class ReceivingDataFromWatchCrazilyActivity extends Activity {
         }
     }
 
-    private PrintWriter writer;
+
     private long timeLastWriting = 0L;
     private int rcvPacketCnt = 0;
     private long rcvByteCnt = 0L;
@@ -64,7 +76,8 @@ public class ReceivingDataFromWatchCrazilyActivity extends Activity {
             // Display message in UI
             rcvPacketCnt++;
             rcvByteCnt += message.length();
-            //mTextView.setText(rcvCnt + "\n" + message.substring(0, 8) + "\n" + message.length());  // for demo
+
+            Log.i("CRAZY_READ", "msg=" + message);
 
             long timeNow = System.currentTimeMillis();
             if (timeNow - timeLastWriting > 10000) {
@@ -79,7 +92,6 @@ public class ReceivingDataFromWatchCrazilyActivity extends Activity {
                 }
                 timeLastWriting = timeNow;
             }
-
         }
     }
 }
