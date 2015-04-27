@@ -3,7 +3,6 @@ package ucla.nesl.calculateprimenumbers.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.MenuItem;
 
 import ucla.nesl.calculateprimenumbers.R;
@@ -20,7 +19,6 @@ public class ReceivingDataFromWearCrazilyActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.i("Phone", "I'll start ReceivingDataFromWearCrazilyService");
         Intent intent = new Intent(ReceivingDataFromWearCrazilyActivity.this, ReceivingDataFromWearCrazilyService.class);
         startService(intent);
     }

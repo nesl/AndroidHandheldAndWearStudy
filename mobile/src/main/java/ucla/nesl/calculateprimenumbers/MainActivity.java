@@ -1,7 +1,7 @@
 package ucla.nesl.calculateprimenumbers;
 
 
-import ucla.nesl.calculateprimenumbers.activities.ReceivingDataFromWearCrazilyActivity;
+import ucla.nesl.calculateprimenumbers.activities.SensorCoordinatingCollectionActivity;
 
 /*
  * please uncomment one of the following lines to choose the desired functionaility
@@ -11,7 +11,8 @@ import ucla.nesl.calculateprimenumbers.activities.ReceivingDataFromWearCrazilyAc
 //public class MainActivity extends AwakeWearActivity {
 //public class MainActivity extends SendingDataCrazyActivity {
 //public class MainActivity extends ReadWriteFileCrazilyActivity {
-public class MainActivity extends ReceivingDataFromWearCrazilyActivity {
+//public class MainActivity extends ReceivingDataFromWearCrazilyActivity {
+public class MainActivity extends SensorCoordinatingCollectionActivity {
 }
 
 

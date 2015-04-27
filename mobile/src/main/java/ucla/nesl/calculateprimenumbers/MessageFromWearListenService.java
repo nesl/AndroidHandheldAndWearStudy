@@ -22,7 +22,7 @@ public class MessageFromWearListenService extends WearableListenerService {
 
         if (messageEvent.getPath().equals("/message_path")) {
             final String message = new String(messageEvent.getData());
-            Log.i("WearListenerService", "got message: " + message);
+            //Log.i("WearListenerService", "got message: " + message);
 
             // Broadcast message to wearable activity for display
             Intent messageIntent = new Intent();

@@ -16,7 +16,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 
-public class SensorService extends Service implements SensorEventListener {
+public class SensorTestingPerformanceService extends Service implements SensorEventListener {
     private static final String TAG = "SensorService";
 
     private final static int SENS_ACCELEROMETER = Sensor.TYPE_ACCELEROMETER;

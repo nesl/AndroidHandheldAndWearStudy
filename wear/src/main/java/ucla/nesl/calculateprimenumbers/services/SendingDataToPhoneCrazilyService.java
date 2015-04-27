@@ -25,7 +25,7 @@ public class SendingDataToPhoneCrazilyService extends Service implements
         GoogleApiClient.OnConnectionFailedListener {
 
     private final IBinder mBinder = new MyBinder();
-    private final String PATH_AGREEMENT_WITH_WEAR = "/message_path";
+    private final String PATH_AGREEMENT_WITH_PHONE = "/message_path";
 
     private final int bulkDataSize = (1 << 16);
 
@@ -117,7 +117,7 @@ public class SendingDataToPhoneCrazilyService extends Service implements
                 Log.i("CRAZY_SEND", "send data " + cntTotal + " size:" + message.length());
 
                 for (Node node : nodes.getNodes()) {
-                    MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(googleClient, node.getId(), PATH_AGREEMENT_WITH_WEAR, message.getBytes()).await();
+                    MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(googleClient, node.getId(), PATH_AGREEMENT_WITH_PHONE, message.getBytes()).await();
                     if (result.getStatus().isSuccess()) {
                         Log.i("SendToWear", "Message: {" + message + "} sent to: " + node.getDisplayName());
                         cntSuccess++;

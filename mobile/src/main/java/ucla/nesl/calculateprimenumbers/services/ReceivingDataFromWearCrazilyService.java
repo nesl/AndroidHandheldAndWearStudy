@@ -16,7 +16,6 @@ import java.io.PrintWriter;
 
 public class ReceivingDataFromWearCrazilyService extends Service {
     private final IBinder mBinder = new MyBinder();
-    //private final String PATH_AGREEMENT_WITH_WEAR = "/message_path";
 
     private PrintWriter writer;
 

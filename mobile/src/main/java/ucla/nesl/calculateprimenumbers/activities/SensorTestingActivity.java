@@ -6,7 +6,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 
 import ucla.nesl.calculateprimenumbers.R;
-import ucla.nesl.calculateprimenumbers.services.SensorService;
+import ucla.nesl.calculateprimenumbers.services.KeepWearAwakeService;
+import ucla.nesl.calculateprimenumbers.services.SensorTestingPerformanceService;
 
 /**
  * Created by timestring on 4/21/15.
@@ -16,7 +17,9 @@ public class SensorTestingActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Intent intent = new Intent(SensorTestingActivity.this, SensorService.class);
+        Intent intent = new Intent(SensorTestingActivity.this, SensorTestingPerformanceService.class);
+        startService(intent);
+        intent = new Intent(SensorTestingActivity.this, KeepWearAwakeService.class);
         startService(intent);
     }
 

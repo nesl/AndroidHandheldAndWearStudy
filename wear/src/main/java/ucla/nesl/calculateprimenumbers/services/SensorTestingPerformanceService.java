@@ -15,8 +15,8 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 
-public class SensorService extends Service implements SensorEventListener {
-    private static final String TAG = "SensorService";
+public class SensorTestingPerformanceService extends Service implements SensorEventListener {
+    private static final String TAG = "SensorTestingService";
 
     private final static int SENS_ACCELEROMETER = Sensor.TYPE_ACCELEROMETER;
     private final static int SENS_MAGNETIC_FIELD = Sensor.TYPE_MAGNETIC_FIELD;
@@ -145,7 +145,7 @@ public class SensorService extends Service implements SensorEventListener {
                             @Override
                             public void run() {
                                 Log.d(TAG, "register Heartrate Sensor");
-                                mSensorManager.registerListener(SensorService.this, mHeartrateSensor, SensorManager.SENSOR_DELAY_NORMAL);
+                                mSensorManager.registerListener(SensorTestingPerformanceService.this, mHeartrateSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
                                 try {
                                     Thread.sleep(measurementDuration * 1000);
@@ -154,7 +154,7 @@ public class SensorService extends Service implements SensorEventListener {
                                 }
 
                                 Log.d(TAG, "unregister Heartrate Sensor");
-                                mSensorManager.unregisterListener(SensorService.this, mHeartrateSensor);
+                                mSensorManager.unregisterListener(SensorTestingPerformanceService.this, mHeartrateSensor);
                             }
                         }, 3, measurementDuration + measurementBreak, TimeUnit.SECONDS);
             } else {

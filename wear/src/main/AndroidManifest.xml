@@ -13,7 +13,6 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@android:style/Theme.DeviceDefault" >
-
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name" >
@@ -43,12 +42,17 @@
             android:exported="true" >
         </service>
         <service
-            android:name=".services.SensorService"
+            android:name=".services.SensorTestingPerformanceService"
             android:enabled="true"
             android:exported="true" >
         </service>
         <service
             android:name=".services.SendingDataToPhoneCrazilyService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".services.SensorCoordinatingCollectionService"
             android:enabled="true"
             android:exported="true" >
         </service>
