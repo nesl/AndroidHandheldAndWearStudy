@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://maps.googleapis.com/maps/api/js"></script>
+<script>
+var fileSelectorWidth = 250;
+function regulateSize() {
+	var wh = window.innerHeight;
+	var ww = window.innerWidth;
+	$('#all').height(wh);
+	$('#typingPanel').width(ww - fileSelectorWidth);
+	$('#fileSelector').width(fileSelectorWidth);
+	$('#fileSelector').css({left:(ww - fileSelectorWidth)});
+}
+
+var keyCount = 0;
+var leftKeyCount = 0;
+var timeSecCnt = 0;
+var startTime = 0;
+var logStr = "";
+
+var tasks = [
+	[
+		// https://www.ted.com/talks/joe_desimone_what_if_3d_printing_was_25x_faster/transcript?language=en
+		"You see this object here. It looks fairly simple, but it's quite",
+		"complex at the same time. It's a set of concentric geodesic structures",
+		"with linkages between each one. In its context, it is not",
+		"manufacturable by traditional manufacturing techniques. It has a",
+		"symmetry such that you can't injection mold it.",
+	], [
+		// https://www.ted.com/talks/fei_fei_li_how_we_re_teaching_computers_to_understand_pictures/transcript?language=en
+		"Yes, we have prototyped cars that can drive by themselves, but without",
+		"smart vision, they cannot really tell the difference between a crumpled",
+		"paper bag on the road, which can be run over, and a rock that size,",
+		"which should be avoided. We have made fabulous megapixel cameras, but we",
+		"have not delivered sight to the blind.",
+	], [
+		// https://www.ted.com/talks/alejandro_aravena_my_architectural_philosophy_bring_the_community_into_the_process
+		"When asked to build housing for 100 families in Chile ten years ago,",
+		"Alejandro Aravena looked to an unusual inspiration. The wisdom of favelas",
+		"and slums. Rather than building a large building with small units, he built",
+		"flexible half-homes that each family could expand on. It was a complex",
+		"problem, but with a simple solution.",
+	], [
+		// https://www.ted.com/talks/chris_domas_the_1s_and_0s_behind_cyber_warfare/transcript?language=en
+		"This is a lot of ones and zeros. It's what we call binary information.",
+		"This is how computers talk. It's how they store information. It's how",
+		"computers think. It's how computers do everything it is that computers do.",
+		"I'm a cybersecurity researcher, which means my job is to sit down with",
+		"this information and try to make sense of it, to try to understand what",
+		"all the ones and zeroes mean.",
+	], [
+		// https://www.ted.com/talks/jorge_soto_the_future_of_early_cancer_detection/transcript?language=en
+		"Today, cancer detection happens mainly when symptoms appear. That is,",
+		"at stage 3 or 4, and I believe that is too late. It is too expensive for",
+		"our families. It is too expensive for humanity. We cannot lose the war against",
+		"cancer. It not only costs us billions of dollars, but it also costs us the",
+		"people we love.",
+	]
+];
+
+
+var taskNo;
+var curLine;
+var curAnswer;
+var firstIncorrectIdx;
+function initQuestion() {
+	taskNo = Math.floor(Math.random() * tasks.length);
+	for (var i = 0; i < tasks[taskNo].length; i++) {
+		$('#typingPanel').append('<p id="q' + i + '" style="font-size:20px; margin-bottom:0px">' + tasks[taskNo][i] + '</p>');
+		$('#typingPanel').append('<p id="a' + i + '" style="font-size:20px; margin-top:0px">'
+				+ '<span id="ac' + i + '" style="color:green"></span>'
+				+ '<span id="aw' + i + '" style="color:red"></span>&nbsp;</p>');
+	}
+	curLine = 0;
+	curAnswer = '';
+	firstIncorrectIdx = -1;
+	logStr += taskNo + '\n';
+	for (var i = 0; i < tasks[taskNo].length; i++) 
+		logStr += tasks[taskNo][i] + '\n';
+	logStr += '----\n';
+
+}
+
+</script>
+</head>
+
+<body style='margin:0; padding:0; overflow:hidden' onresize="regulateSize()">
+<div id="all" style="width:100%; height:100%; position: relative">
+	<div id="typingPanel" style="width:500px;height:100%;position:absolute">
+		<h1>Typing speed test</h1>
+		
+		<h3 style='color:green'>Instruction: the following you see the article. Try to type exactly the same as the given article. When you press the first keystroke, the test begins. Right now it's case-insensitive, but you're encouraged to make it right</h3>
+
+		<div style="height:50px"></div>
+		<table style='border:0px'>
+			<tr id='meter' style='font-size:32px'>
+				<td style='width:300px'>Time: <span id='elapsedSec'>0</span> secs</td>
+				<td style='width:300px'>Total speed: <span id='totalSpeed'>0</span> k/s</td>
+				<td style='width:300px'>Left speed: <span id='leftSpeed'>0</span> k/s</td>
+			</tr>
+		</table>
+		<div style="height:50px"></div>
+	</div>
+	<div id="fileSelector" style="background-color: rgb(255, 233, 233); height:100%; float:right; position:absolute">
+		<textarea id='stroke' style='width:100%; height:100%'>(haven't started)</textarea>
+	</div>
+</div>
+	
+<script>
+regulateSize();
+initQuestion();
+
+var specialChars = [16, 17, 91, 18, 93, 27, 9];
+var auxiliaryChars = {32:' ', 188:',', 190:'.', 191:'/', 186:';', 222:'\'', 219:'[', 221:']'};
+var leftKeys = [49, 81, 65, 90, 50, 87, 83, 88, 51, 69, 68, 67, 52, 82, 70, 86, 53, 84, 71, 66];
+
+document.body.onkeydown = function(e){
+	//alert(String.fromCharCode(e.keyCode)+" --> "+e.keyCode);
+	//console.log(e, new Date());
+
+	// if finished, then return
+	if (curLine == tasks[taskNo].length)
+		return;
+
+	if (startTime == 0) {
+		startTime = e.timeStamp;
+		setTimeout(showOneSecondPassed, 1000);
+	}
+	logStr += e.timeStamp + "," + e.which + "," + e.keyCode + "\n"
+	$("#stroke").val(logStr);
+	keyCount++;
+	if ($.inArray(e.keyCode, leftKeys) != -1)
+		leftKeyCount++;
+
+	if (e.keyCode == 8) {  // backspace
+		curAnswer = curAnswer.substr(0, curAnswer.length-1);
+		if (curAnswer.length <= firstIncorrectIdx)
+			firstIncorrectIdx = -1;
+	}
+	else if ($.inArray(e.keyCode, specialChars) != -1)  // ctrl, shift, alt, esc, ...
+		keyCount--;
+	else if ( $.inArray(e.keyCode, [32, 13]) != -1) {  // space, newline
+		if (firstIncorrectIdx == -1 && tasks[taskNo][curLine].length == curAnswer.length) {
+			curLine++;
+			curAnswer = "";
+			if (curLine == tasks[taskNo].length) {
+				$('#elaspedSec').text( (e.timeStamp - startTime) / 1000.0 );
+				$('#meter').css('color', 'red');
+				alert('Congratuation! But please don\'t move for 10 seconds...');
+			}
+		}
+		else {
+			idx = curAnswer.length;
+			correctCode = tasks[taskNo][curLine].substr(idx, 1);  // if exceed the line boundary, it simply return an empty string
+			if (e.keyCode == 32) {
+				if (correctCode == ' ')
+					proposedKey = ' '; 
+				else
+					proposedKey = '_';
+			}
+			else {
+				proposedKey = '|';
+			}
+			if (firstIncorrectIdx == -1 && proposedKey != correctCode)
+				firstIncorrectIdx = idx;
+			curAnswer += proposedKey;
+		}
+	}
+	else {
+		proposedKey = '?';
+		if ( (65 <= e.keyCode && e.keyCode <= 90) // A-Z
+			|| (48 <= e.keyCode && e.keyCode <= 57)) // 0-9
+			proposedKey = String.fromCharCode(e.keyCode).toLowerCase();
+		else if (e.keyCode in auxiliaryChars)
+			proposedKey = auxiliaryChars[ e.keyCode ];
+
+		idx = curAnswer.length;
+		correctCode = tasks[taskNo][curLine].substr(idx, 1);  // if exceed the line boundary, it simply return an empty string
+
+		// case adjustion
+		if (firstIncorrectIdx == -1 && proposedKey.match(/[a-z]/i) && correctCode.match(/[a-zA-Z]/i) && proposedKey == correctCode.toLowerCase())
+			proposedKey = correctCode;
+
+		// show incorrect space
+		if ( proposedKey == ' ' && (correctCode != ' ' || firstIncorrectIdx != -1) )
+			proposedKey = '_';
+		
+		console.log("proposed", proposedKey, correctCode, firstIncorrectIdx);
+
+		if (firstIncorrectIdx == -1 && proposedKey != correctCode)
+			firstIncorrectIdx = idx;
+		curAnswer += proposedKey;
+	}
+
+	if (keyCount >= 2) {
+		t = ((keyCount-1) / (e.timeStamp - startTime) * 1000);
+		t = Math.round(t * 10) / 10;
+		$('#totalSpeed').text(t);
+	}
+	if (leftKeyCount >= 2) {
+		t = ((leftKeyCount-1) / (e.timeStamp - startTime) * 1000);
+		t = Math.round(t * 10) / 10;
+		$('#leftSpeed').text(t);
+	}
+
+	if (firstIncorrectIdx == -1) {
+		$("#ac" + curLine).text(curAnswer);
+		$("#aw" + curLine).text("");
+	}
+	else {
+		$("#ac" + curLine).text(curAnswer.substr(0, firstIncorrectIdx));
+		$("#aw" + curLine).text(curAnswer.substr(firstIncorrectIdx));
+	}
+	//console.log(curAnswer, curAnswer.length, e.keyCode, String.fromCharCode(e.keyCode), firstIncorrectIdx);
+	console.log(e);
+};
+
+function showOneSecondPassed() {
+	timeSecCnt++;
+	$('#elapsedSec').text(timeSecCnt);
+	if (curLine < tasks[taskNo].length)
+		setTimeout(showOneSecondPassed, 1000);
+}
+</script>
+</body>
+
+</html> 
