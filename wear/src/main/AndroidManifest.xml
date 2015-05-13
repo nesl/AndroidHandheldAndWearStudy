@@ -56,6 +56,11 @@
             android:enabled="true"
             android:exported="true" >
         </service>
+        <service
+            android:name=".services.SensorCollectionSoloService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
     </application>
 
 </manifest>

@@ -8,19 +8,12 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Bundle;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
 import android.util.Log;
-
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.wearable.MessageApi;
-import com.google.android.gms.wearable.Node;
-import com.google.android.gms.wearable.NodeApi;
-import com.google.android.gms.wearable.Wearable;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -42,9 +35,10 @@ import ucla.nesl.calculateprimenumbers.TimeString;
  *           but not to the target app
  *     - re-think how to capture the time offset under batch sensing
  */
-public class SensorCoordinatingCollectionService extends Service implements SensorEventListener,
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
+public class SensorCollectionSoloService extends Service implements SensorEventListener{
     private static final String TAG = "SensorTestingService";
+
+    private final IBinder mBinder = new MyBinder();
 
     private final String PATH_AGREEMENT_WITH_PHONE = "/message_path";
 
@@ -68,10 +62,6 @@ public class SensorCoordinatingCollectionService extends Service implements Sens
 
     private HashMap<Integer, Long> sensorStartingTime = new HashMap<>();
 
-    private ArrayList<String> dataBuffer = new ArrayList<>();
-
-    private GoogleApiClient googleClient;
-
     private PrintWriter backupLogger;
     private TimeString timeString = new TimeString();
 
@@ -83,13 +73,6 @@ public class SensorCoordinatingCollectionService extends Service implements Sens
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wakeLock = pm.newWakeLock( PowerManager.PARTIAL_WAKE_LOCK, "My wakelook");
         wakeLock.acquire();
-
-        googleClient = new GoogleApiClient.Builder(this)
-                .addApi(Wearable.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-        googleClient.connect();
 
         String loggerFileName = "/sdcard/phonewear_v1_wearbk_" + timeString.currentTimeForFile() + ".txt";
         try {
@@ -106,14 +89,22 @@ public class SensorCoordinatingCollectionService extends Service implements Sens
     @Override
     public void onDestroy() {
         super.onDestroy();
-
         stopMeasurement();
+    }
+
+    public class MyBinder extends Binder {
+        public SensorCollectionSoloService getService() {
+            return SensorCollectionSoloService.this;
+        }
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        Log.i("Service", "onBind");
+        return mBinder;
     }
+
+
 
     private void startMeasurement() {
         // NOTE: don't change the following part! -----------------------------------+
@@ -198,27 +189,22 @@ public class SensorCoordinatingCollectionService extends Service implements Sens
         //logger.write(event.timestamp + "," + event.sensor.getType() + "," + event.accuracy + "," + event.values.length + "\n");
         //Log.i(TAG, "acc");
 
-        synchronized (dataBuffer) {
-            // for recording the time offset
-            int sensorType = event.sensor.getType();
-            long now = System.currentTimeMillis();
-            if (sensorStartingTime.containsKey(sensorType)) {
-                String t = "1,-1," + sensorType + "," + now + "," + event.timestamp + "\n";
-                dataBuffer.add(t);
-                backupLogger.write(t);
-                sensorStartingTime.put(sensorType, event.timestamp);
-            }
-
-            // put sensor data to the buffer
-
-            sensorLineBuilder.append("1," + event.sensor.getType() + "," + now + "," + event.timestamp);
-            for (float v : event.values)
-                sensorLineBuilder.append("," + v);
-            sensorLineBuilder.append("\n");
-            dataBuffer.add(sensorLineBuilder.toString());
-            backupLogger.write(sensorLineBuilder.toString());
-            sensorLineBuilder.setLength(0);  // reset to empty string
+        // for recording the time offset
+        int sensorType = event.sensor.getType();
+        long now = System.currentTimeMillis();
+        if (sensorStartingTime.containsKey(sensorType)) {
+            backupLogger.write("1,-1," + sensorType + "," + now + "," + event.timestamp + "\n");
+            sensorStartingTime.put(sensorType, event.timestamp);
         }
+
+        // put sensor data to the buffer
+
+        sensorLineBuilder.append("1," + event.sensor.getType() + "," + now + "," + event.timestamp);
+        for (float v : event.values)
+            sensorLineBuilder.append("," + v);
+        sensorLineBuilder.append("\n");
+        backupLogger.write(sensorLineBuilder.toString());
+        sensorLineBuilder.setLength(0);  // reset to empty string
     }
 
 
@@ -226,24 +212,6 @@ public class SensorCoordinatingCollectionService extends Service implements Sens
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
-
-
-    @Override
-    public void onConnected(Bundle bundle) {
-        Log.i("WEAR_SENSOR", "init the thread");
-    }
-
-    @Override
-    public void onConnectionSuspended(int cause) {
-        Log.i("WEAR_SENSOR", "or connection suspended?");
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.i("WEAR_SENSOR", "or connection failed? code=" + connectionResult.getErrorCode());
-    }
-
-
 
 
     private Sensor registerAndAcquire(final int sensorType, int speed) {
@@ -307,27 +275,9 @@ public class SensorCoordinatingCollectionService extends Service implements Sens
                         new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
                 int batteryLevel = batteryIntent.getIntExtra("level", -1);
                 String t = "1,-2," + now + "," + batteryLevel + "\n";
-                dataBuffer.add(t);
                 backupLogger.write(t);
                 backupLogger.flush();
 
-                synchronized (dataBuffer) {
-                    for (String line : dataBuffer)
-                        transmissionBuffer.append(line);
-                    dataBuffer.clear();
-                }
-
-                NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes(googleClient).await();
-                for (Node node : nodes.getNodes()) {
-                    MessageApi.SendMessageResult result = Wearable.MessageApi
-                            .sendMessage(googleClient, node.getId(), PATH_AGREEMENT_WITH_PHONE, transmissionBuffer.toString().getBytes())
-                            .await();
-                    Log.i("SENSING", "send data");
-                    if (result.getStatus().isSuccess()) {
-                        //Log.i("SendToWear", "Message: {" + message + "} sent to: " + node.getDisplayName());
-                        transmissionBuffer.setLength(0);
-                    } // else, wait for next time to transmit
-                }
                 try {
                     sleep(10000L);
                 } catch (InterruptedException e) {

@@ -17,6 +17,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import ucla.nesl.calculateprimenumbers.R;
+import ucla.nesl.calculateprimenumbers.TimeString;
 import ucla.nesl.calculateprimenumbers.services.KeepWearAwakeService;
 import ucla.nesl.calculateprimenumbers.services.SensorCoordinatingCollectionService;
 
@@ -26,6 +27,8 @@ import ucla.nesl.calculateprimenumbers.services.SensorCoordinatingCollectionServ
 public class SensorCoordinatingCollectionActivity extends ActionBarActivity {
     private SensorCoordinatingCollectionService serviceInstance;
 
+    private TimeString timestring = new TimeString();
+
     private TextView textTitle;
     private TextView textAcc;
     private TextView textGyro;
@@ -33,6 +36,7 @@ public class SensorCoordinatingCollectionActivity extends ActionBarActivity {
     private TextView textGravity;
     private TextView textHeartRate;
     private TextView textLastReceivingTime;
+    private TextView textCurrentTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +83,11 @@ public class SensorCoordinatingCollectionActivity extends ActionBarActivity {
         textLastReceivingTime = new TextView(this);
         textLastReceivingTime.setText("Last received: ");
         layoutStats.addView(textLastReceivingTime);
+
+        textCurrentTime = new TextView(this);
+        textCurrentTime.setText("Now: ");
+        layoutStats.addView(textCurrentTime);
+
 
         // set timer for updating the ui
         uiUpdateHandler.sendEmptyMessageDelayed(0, 2000L);  // why 2 second? because we need to make sure the service is initiated!
@@ -145,6 +154,7 @@ public class SensorCoordinatingCollectionActivity extends ActionBarActivity {
             textGravity.setText("# of Gravity: " + status[3]);
             textHeartRate.setText("# of HeartRate: " + status[4]);
             textLastReceivingTime.setText("Last received: " + status[5]);
+            textCurrentTime.setText("Now: " + timestring.currentTimeForDisplay());
             //Log.i("UPDATE", "" + status[0]);
             sendEmptyMessageDelayed(0, 500L);
         }

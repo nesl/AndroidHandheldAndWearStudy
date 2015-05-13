@@ -21,7 +21,7 @@ public class KeepWearAwakeService extends Service implements
 
     private GoogleApiClient googleClient;
     private final String PATH_AGREEMENT_WITH_WEAR = "/message_path";
-    private final long wakeInterval = 10000L;
+    private final long wakeInterval = 3000L;
 
     public KeepWearAwakeService() {
     }
@@ -76,8 +76,8 @@ public class KeepWearAwakeService extends Service implements
     private Thread sendMiniDataThread = new Thread() {
         public void run() {
             NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes(googleClient).await();
-            for (Node node : nodes.getNodes()) {
-                while (true) {
+            while (true) {
+                for (Node node : nodes.getNodes()) {
                     String message = "1";
                     //Log.i("CRAZY_SEND", "send data " + cntTotal + " size:" + message.length());
                     MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(googleClient, node.getId(), PATH_AGREEMENT_WITH_WEAR, message.getBytes()).await();
