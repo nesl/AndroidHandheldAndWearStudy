@@ -1,5 +1,5 @@
 tic
-data = csvreadEX('/Users/timestring/Documents/androidWear/classifyTyping/phonewear_v1_20150423_115139.txt');
+data = csvreadEX('/Users/timestring/Documents/androidWear/classifyTyping/phonewear_v1_20150425_143451.txt');
 toc
 %data = csvreadEX('/Users/timestring/Documents/androidWear/classifyTyping/x.txt');
 
