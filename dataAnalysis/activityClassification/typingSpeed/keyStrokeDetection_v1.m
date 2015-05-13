@@ -18,6 +18,7 @@ dataGrav = csvread([rootDir 'processed_grav.txt']);
 %dataMag  = csvread([rootDir 'sensorRaw_mag.txt']);
 dataTyping = csvread([rootDir 'processed_typing.txt']);
 
+%TODO: delegate as a function
 
 %% recover the texts were typing
 
@@ -46,7 +47,19 @@ dataTypingLeft = dataTyping(isLeftKey, :);
 
 leftKeyTexts = keyTexts(isLeftKey);
 
+%TODO: delegate as a function
 
+%% algorithm start. coarse filter, threshold based
+
+accIdxs = (dataAcc(:,5) < 8.7 | dataAcc(:,5) > 10.3);     % z-acc
+gyroIdxs = (dataGyro(:,3) < -0.9 | dataGyro(:,3) > 0.9);  % x-gyro
+
+
+
+
+
+
+%% stop here
 return
 
 %% plot x,y,z (sub sample)
@@ -110,6 +123,8 @@ for i = 1:size(dataTyping, 1)
     text(dataTyping(i,1), 13, keyTexts{i});
 end
 
+plot( [dataTyping(1,1), dataTyping(end,1)], [ 10.3  10.3], 'k--' )
+plot( [dataTyping(1,1), dataTyping(end,1)], [ 8.7   8.7], 'k--' )
 
 %% gyro
 clf
@@ -124,20 +139,9 @@ for i = 1:size(dataTyping, 1)
     text(dataTyping(i,1), -5, keyTexts{i});
 end
 ylim([-20 20])
-hold off
 
-%% see system time and sensor time
-clf
-plot(dataAcc(:,1), dataAcc(:,2), '.');
-xlabel('system time');
-ylabel('sensor time');
+plot( [dataTyping(1,1), dataTyping(end,1)], [ 0.9  0.9], 'k--' )
+plot( [dataTyping(1,1), dataTyping(end,1)], [-0.9 -0.9], 'k--' )
 
-%% show key statistics
-clf
-stat = tabulate(dataTyping(:,2));
-stat = stat(leftKeyCodes, 1:2);
-bar(stat(:,2));
-xlabels = cellstr(char(stat(:,1)))
-set(gca, 'XTickLabel', xlabels)
-set(gca, 'XTick', 1:size(stat, 1));
-
+plot(dataAcc(accIdxs, 2), repmat(-6, sum(accIdxs), 1), 'go')
+plot(dataGyro(gyroIdxs, 2), repmat(-6.5, sum(gyroIdxs), 1), 'go')

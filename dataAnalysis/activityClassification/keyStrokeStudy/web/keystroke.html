@@ -4,6 +4,7 @@
 <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 <script src="http://maps.googleapis.com/maps/api/js"></script>
 <script>
+// ---- layout ----------------------------------------------------------------
 var fileSelectorWidth = 250;
 function regulateSize() {
 	var wh = window.innerHeight;
@@ -14,6 +15,7 @@ function regulateSize() {
 	$('#fileSelector').css({left:(ww - fileSelectorWidth)});
 }
 
+// ---- content preparation ---------------------------------------------------
 var keyCount = 0;
 var leftKeyCount = 0;
 var timeSecCnt = 0;
@@ -83,6 +85,33 @@ function initQuestion() {
 
 }
 
+// ---- Web socket --------------------------------------------------------
+function loadFileList() {
+	var ws = new WebSocket('ws://localhost:3333');
+	var checkpoint = false;
+	ws.onopen = function() {
+		// Web Socket is connected, send data using send()
+		//ws.send("Message to send");
+		console.log("ls open");
+	};
+	ws.onmessage = function (evt)  { 
+		var rcvStr = evt.data;
+		console.log("Message is received...", rcvStr);
+		var rcvObj = $.parseJSON(rcvStr);
+		for (var i = 0; i < rcvObj.items.length; i++) {
+			$("#fileList").append(new Option(rcvObj.items[i], rcvObj.items[i]));
+		}
+		checkpoint = true;
+	};
+	ws.onclose = function() { 
+		// websocket is closed.
+		console.log("Connection is closed..."); 
+		if (checkpoint == false)
+			alert("cannot connect to server");
+	};
+	console.log('test2 finish');
+}
+
 </script>
 </head>
 
@@ -113,7 +142,7 @@ regulateSize();
 initQuestion();
 
 var specialChars = [16, 17, 91, 18, 93, 27, 9];
-var auxiliaryChars = {32:' ', 188:',', 190:'.', 191:'/', 186:';', 222:'\'', 219:'[', 221:']'};
+var auxiliaryChars = {32:' ', 188:',', 190:'.', 191:'/', 186:';', 222:'\'', 219:'[', 221:']', 189:'-', 187:'=', 220:'\\'};
 var leftKeys = [49, 81, 65, 90, 50, 87, 83, 88, 51, 69, 68, 67, 52, 82, 70, 86, 53, 84, 71, 66];
 
 document.body.onkeydown = function(e){
@@ -128,7 +157,7 @@ document.body.onkeydown = function(e){
 		startTime = e.timeStamp;
 		setTimeout(showOneSecondPassed, 1000);
 	}
-	logStr += e.timeStamp + "," + e.which + "," + e.keyCode + "\n"
+	logStr += e.timeStamp + "," + e.which + "," + e.keyCode + "," + e.location + "\n"
 	$("#stroke").val(logStr);
 	keyCount++;
 	if ($.inArray(e.keyCode, leftKeys) != -1)

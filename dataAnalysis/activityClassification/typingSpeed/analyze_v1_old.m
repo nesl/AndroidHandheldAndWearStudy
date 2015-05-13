@@ -1,6 +1,10 @@
+% This file read sensorRaw.txt directly, which has not been pre-processed
+% and lead poor reading performance.
+
 leftKeyCodes = [49, 81, 65, 90, 50, 87, 83, 88, 51, 69, 68, 67, 52, 82, 70, 86, 53, 84, 71, 66];
 
 
+tic
 %rootDir = '../../data/activityClassification/typingSpeed/04281230_bo/';
 %rootDir = '../../data/activityClassification/typingSpeed/04281510_bo/';
 %rootDir = '../../data/activityClassification/typingSpeed/04281645_bo_orientation/';
@@ -9,43 +13,44 @@ leftKeyCodes = [49, 81, 65, 90, 50, 87, 83, 88, 51, 69, 68, 67, 52, 82, 70, 86, 
 rootDir = '../../data/activityClassification/typingSpeed/05091830_bo/';
 
 
-%sensorFile = [rootDir 'sensorRaw.txt'];
-%rawSensor = csvreadEX(sensorFile);
+sensorFile = [rootDir 'sensorRaw.txt'];
+rawSensor = csvreadEX(sensorFile);
+typingFile = [rootDir 'typingEvent.txt'];
+rawTyping = csvread(typingFile);
+toc
 
-dataAcc  = csvread([rootDir 'processed_acc.txt']);
-dataGyro = csvread([rootDir 'processed_gyro.txt']);
-dataGrav = csvread([rootDir 'processed_grav.txt']);
-%dataMag  = csvread([rootDir 'sensorRaw_mag.txt']);
-dataTyping = csvread([rootDir 'processed_typing.txt']);
+%% separate into different sensor data
+% acc     = 1
+% gyro    = 4
+% gravity = 9
+dataAcc  = rawSensor(rawSensor(:,2) == 1, :);
+dataGyro = rawSensor(rawSensor(:,2) == 4, :);
+dataGrav = rawSensor(rawSensor(:,2) == 9, :);
 
+dataAcc  = dataAcc(:,3:end);
+dataGyro = dataGyro(:,3:end);
+dataGrav = dataGrav(:,3:end);
 
-%% recover the texts were typing
+tsys = dataAcc(1,1);  % system time
+dataAcc(:,1)  = (dataAcc(:,1) - tsys) * 1e-3;
+dataGyro(:,1) = (dataGyro(:,1) - tsys) * 1e-3;
+dataGrav(:,1) = (dataGrav(:,1) - tsys) * 1e-3;
 
-keyTexts = cell(size(dataTyping(:,1), 1), 1);
+tsen = dataAcc(1,2);  % sensor time
+dataAcc(:,2)  = (dataAcc(:,2) - tsen) * 1e-9;
+dataGyro(:,2) = (dataGyro(:,2) - tsen) * 1e-9;
+dataGrav(:,2) = (dataGrav(:,2) - tsen) * 1e-9;
 
-for i = 1:size(dataTyping, 1)
-    if 33 <= dataTyping(i,2) && dataTyping(i,2) <= 122  % regular chars
-        keyTexts{i} = char(dataTyping(i,2));
-    elseif dataTyping(i,2) == 8  % backspace
-        keyTexts{i} = '<=';
-    elseif dataTyping(i,2) == 16  % shift, 1=left, 2=right
-        keyTexts{i} = '\^';
-    elseif dataTyping(i,2) == 32  % space
-        keyTexts{i} = '\_';
-    elseif dataTyping(i,2) == 13  % new line
-        keyTexts{i} = '\\n';
-    else
-        keyTexts{i} = '@@';
-    end
+%%
+dataTyping = rawTyping;
+dataTyping(:,1) = (rawTyping(:,1) - tsys) / 1000 - 97.426;
+
+isLeftKey = false(length(dataTyping), 1);
+for key = leftKeyCodes
+    isLeftKey = isLeftKey | (dataTyping(:,2) == key);
 end
 
-isLeftKey = ismember(dataTyping(:,2), leftKeyCodes)  ...  % regular left keys
-            | (dataTyping(:,2) == 16 & dataTyping(:,4) == 1);
-
 dataTypingLeft = dataTyping(isLeftKey, :);
-
-leftKeyTexts = keyTexts(isLeftKey);
-
 
 return
 
@@ -107,24 +112,28 @@ plot(dataAcc(1:end,2), dataAcc(1:end,5), 'b-o');
 plot(dataTyping(:,1), repmat(15, length(dataTyping), 1), 'kx');
 plot(dataTypingLeft(:,1), repmat(14, length(dataTypingLeft), 1), 'mx');
 for i = 1:size(dataTyping, 1)
-    text(dataTyping(i,1), 13, keyTexts{i});
+    if 33 <= dataTyping(i,2) && dataTyping(i,2) <= 122
+        text(dataTyping(i,1), 13, char(dataTyping(i,2)));
+    end
 end
 
 
 %% gyro
 clf
 hold on
-%plot(dataGyro(1:end,2), dataGyro(1:end,5), 'b-o');
-%plot(dataGyro(1:end,2), dataGyro(1:end,4), 'g-o');
+plot(dataGyro(1:end,2), dataGyro(1:end,5), 'b-o');
+plot(dataGyro(1:end,2), dataGyro(1:end,4), 'g-o');
 plot(dataGyro(1:end,2), dataGyro(1:end,3), 'r-o');
 
 plot(dataTyping(:,1), repmat(-4, length(dataTyping), 1), 'kx');
 plot(dataTypingLeft(:,1), repmat(-4.5, length(dataTypingLeft), 1), 'mx');
 for i = 1:size(dataTyping, 1)
-    text(dataTyping(i,1), -5, keyTexts{i});
+    if 33 <= dataTyping(i,2) && dataTyping(i,2) <= 122
+        text(dataTyping(i,1), -5, char(dataTyping(i,2)));
+    end
 end
 ylim([-20 20])
-hold off
+
 
 %% see system time and sensor time
 clf
@@ -133,11 +142,9 @@ xlabel('system time');
 ylabel('sensor time');
 
 %% show key statistics
-clf
 stat = tabulate(dataTyping(:,2));
 stat = stat(leftKeyCodes, 1:2);
 bar(stat(:,2));
 xlabels = cellstr(char(stat(:,1)))
 set(gca, 'XTickLabel', xlabels)
 set(gca, 'XTick', 1:size(stat, 1));
-
