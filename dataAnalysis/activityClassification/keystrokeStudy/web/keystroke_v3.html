@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://maps.googleapis.com/maps/api/js"></script>
+<script>
+
+// ---- content preparation ---------------------------------------------------
+var keyCount = 0;
+var leftKeyCount = 0;
+var timeSecCnt = 0;
+var startTime = 0;
+var logStr = "";
+
+var tasks = [
+	[
+		// ref: http://www.huffingtonpost.com/adam-grant/remembering-dave-goldberg_b_7251408.html
+		"Most of us are lucky if we have even one great passion in our lives. Dave Goldberg",
+		"had many more; his wife Sheryl Sandberg, his children, his friends and colleagues,",
+		"music, poker, and the Minnesota Vikings.",
+		"On Dave's birthday last fall, a group of friends joined him at his home to watch the",
+		"Vikings play the Packers. Dave did something that caught me off guard. At the time,",
+		"it seemed small. But now it speaks profoundly to one of the many ways that Dave was",
+		"larger than life.",
+		"The game got off to an ugly start. In the first 10 minutes, the Vikings were down",
+		"14-0. A typical fan would scream at the coach, start hurling objects at the TV, or",
+		"give up on the game. But Dave stuck by his team. By halftime, the Vikings were losing",
+		"28-0. Dave didn't budge; he kept rooting for them. In the third quarter, they were",
+		"down 42-0. By this point, I wasn't even watching the game. I was watching Dave in",
+		"awe -- because every time the Packers scored, he cheered louder for the Vikings. The",
+		"further behind his team fell, the more he stood up for them. Even after losing 42-10,",
+		"Dave still loved his team.",
+		"That's who Dave Goldberg was. When your chips were down, he doubled down. As Sheryl",
+		"expressed it Tuesday in the single most beautiful speech I've ever heard, 'Dave was",
+		"my rock.'",
+	],[
+		"Dave was the CEO of SurveyMonkey, and he hosted me to speak there a year ago. When",
+		"he gave the introduction, I was so embarrassed by his kind words that I could hardly",
+		"speak. I knew I didn't deserve his praise, but I wanted to earn a fraction of it.",
+		"Among the hundreds of talks I gave that year, it was the most extraordinary audience",
+		"I had. Just as Dave did with everyone he met, the SurveyMonkey team instantly made",
+		"me feel accepted. They listened more intently, and laughed more loudly, than any group",
+		"I had addressed. I was so astonished by their generosity and curiosity that I hung",
+		"around afterward, hounding various employees to find out how they had created such",
+		"a positive culture. Over and over, I heard the same thing; the secret ingredient was",
+		"Dave.",
+		"It was clear that Dave made a concerted effort to recruit people who cared about others,",
+		"who loved to learn and have fun. But his team stressed something far more meaningful;",
+		"Dave built that culture by example. His helpfulness, inquisitiveness and joy were",
+		"contagious. His employees wanted to be like him.",
+		"Great leaders build things that outlast them. Inspired by Dave's example, SurveyMonkey",
+		"will continue to thrive. This week, the teams worked late to finish projects that",
+		"mattered most to Dave, and used the hashtag 3makedaveproud.",
+		"When leaders are admired, it's usually for what they do for the company. But Dave's",
+		"team admired him for what he did for them. Dave saw and brought out the best in others.",
+		"His goodness moved us even more than his greatness.",
+		"I've spent a dozen years studying generosity, and there is no one who embodied it",
+		"like Dave. Touching tributes have extolled him as a loving father and husband, the",
+		"heart and soul of Silicon Valley, a lifelong advocate for women, best friend to many,",
+		"a compassionate leader, and a gracious and generous connector who was bright, kind,",
+		"humble, and universally admired and liked.",
+	],[
+		"Like his wife, her parents, and his own parents, Dave lived his life in service of",
+		"others. He was an advocate for SurveyMonkey Contribute, which has donated over 45",
+		"million to charity in exchange for people taking surveys. He was a dedicated benefactor",
+		"of a wide range of important causes, particularly in education and healthcare. But",
+		"he rarely spoke about his philanthropic work.",
+		"'David Goldberg embodied the definition of a real leader -- someone who was always",
+		"looking for ways to empower others,' President Obama wrote. 'He was generous and kind",
+		"with everybody, and cared less about the limelight than making sure that the people",
+		"he worked with and loved succeeded in whatever they did.'",
+		"Dave was quiet about his contributions because he was modest, but also because he",
+		"genuinely took more joy in the success of others than his own. His startup was streaming",
+		"music online before most people had even heard of the internet, but he didn't talk",
+		"about that. He grew SurveyMonkey from 12 employees to 500, building it into a billion-dollar",
+		"company, but he didn't talk about that. As he wisely noted last year, his best advice",
+		"for leaders was to 'Stop talking. Ask and listen.'",
+		"A little over a month ago, I saw Dave for the last time. As always, there was no handshake;",
+		"he greeted me with a teddy bear hug. When I asked him what was new in his life, he",
+		"immediately said the highlight was the Lean In Together campaign. He beamed with pride",
+		"at the prospect of fathers becoming more involved with their children, husbands becoming",
+		"50-50 partners, and men becoming more supportive of women at work.",
+	],[
+		"Dave was Sheryl's biggest fan, and he cheered for her even more passionately than",
+		"the Vikings. When she was writing Lean In, she didn't want to put her picture on the",
+		"cover or share her personal stories. She wanted the book to be about progress for",
+		"women, not about her. Dave knew the movement needed a champion. It needed a human",
+		"face and voice. He encouraged her to lean in.",
+		"Queen Elizabeth II said that grief is the price we pay for love, and for Dave, the",
+		"grief is immeasurable. My heart is aching for Sheryl and their children. It is also",
+		"hurting deeply for the world.",
+		"I don't believe this happened for a reason, but it has given us all a reason to be",
+		"more present parents, more loving spouses, more supportive friends, and more caring",
+		"leaders. The overwhelming sentiment from everyone who knew Dave is that he inspired",
+		"us to be better human beings. And he had that effect on us throughout his life, long",
+		"before we lost him. 'Things will never be the same,' Sheryl said, 'but the world is",
+		"better for the years my beloved husband lived.'",
+		"There is little that can bring solace in this time, but there is one memory of Dave",
+		"that I will cherish forever. In the spirit of candor, Sheryl is not the world's biggest",
+		"football fan. But on his last birthday, when Dave walked in the door, she and the",
+		"kids were decked out in Vikings jerseys.",
+		"Dave broke out in the biggest grin imaginable, and I have never seen a person happier.",
+		"He loved his family with all his heart, and he knew they loved him the same way.",
+	]
+];
+
+
+var taskNo;
+var curLine;
+var curAnswer;
+var firstIncorrectIdx;
+function initQuestion() {
+	taskNo = Math.floor(Math.random() * tasks.length);
+	for (var i = 0; i < tasks[taskNo].length; i++) {
+		$('#typingPanel').append('<p id="q' + i + '" style="font-size:20px; margin-bottom:0px">' + tasks[taskNo][i] + '</p>');
+		$('#typingPanel').append('<p id="a' + i + '" style="font-size:20px; margin-top:0px">'
+				+ '<span id="ac' + i + '" style="color:green"></span>'
+				+ '<span id="aw' + i + '" style="color:red"></span>&nbsp;</p>');
+	}
+	curLine = 0;
+	curAnswer = '';
+	firstIncorrectIdx = -1;
+	/*
+	logStr += taskNo + '\n';
+	for (var i = 0; i < tasks[taskNo].length; i++) 
+		logStr += tasks[taskNo][i] + '\n';
+	logStr += '----\n';
+	*/
+}
+
+// ---- Web socket --------------------------------------------------------
+var getTokenTime;
+function getToken(userName) {
+	userName = userName + "_v3";
+	getTokenTime = (new Date()).getTime();
+	var ws = new WebSocket('ws://localhost:3333/register/' + userName);
+	
+	ws.onopen = function() {
+		//ws.send("Message to send");
+	};
+	ws.onmessage = function (evt)  { 
+		token = evt.data;
+		console.log("Message is received...", token);
+	};
+	ws.onclose = function() { 
+		console.log("Connection is closed...");
+	}
+	ws.onerror = function() { 
+		alert("cannot connect to server");
+	};
+}
+
+var token = '?';
+var finSentTime;
+function sendFin() {
+	finSentTime = (new Date()).getTime();
+	var ws = new WebSocket('ws://localhost:3333/finish/' + token);
+	
+	ws.onopen = function() {
+		//ws.send("Message to send");
+	};
+	ws.onmessage = function (evt)  { 
+		var rcvStr = evt.data;
+		console.log("Message is received...", rcvStr);
+	};
+	ws.onclose = function() { 
+		console.log("Connection is closed...");
+	}
+	ws.onerror = function() { 
+		alert("cannot connect to server");
+	};
+}
+
+function sendData() {
+	var ws = new WebSocket('ws://localhost:3333/data/' + token);
+	var data = Object();
+	data.timeAlign = getTokenTime + '\n' + finSentTime;
+	data.typing = logStr;
+	data.texts = tasks[taskNo].join('\n');
+
+	ws.onopen = function() {
+		ws.send( JSON.stringify(data) );
+	};
+	ws.onmessage = function (evt)  { 
+		//console.log("Message is received...", rcvStr);
+	};
+	ws.onclose = function() { 
+		console.log("Connection is closed...");
+	}
+	ws.onerror = function() { 
+		alert("cannot connect to server");
+	};
+}
+
+// ---- check and prepare second page ------------------------------------
+function contextSwitch() {
+	// checking
+	var user = $('#user').val();
+	if (user == '') {
+		alert('Please enter your name');
+		return;
+	}
+	//console.log('user', user);
+
+	initQuestion();
+	getToken(user);
+
+	// UI
+	$('#preface').css('display', 'none');
+	$('#typingPanel').css('visibility', 'visible');
+
+	// event handler registration
+	document.body.onkeydown = handleKeyDown;
+}
+
+</script>
+</head>
+
+<body style='margin:0; padding:0; overflow:hidden'>
+<div id="all" style="width:100%; height:100%; position: relative">
+	<h1>Typing speed test</h1>
+
+	<div id="preface" style="width:100%">
+		<div style='width:100%; margin-left:200px; font-size:28px'>
+			<p>Instruction:</p>
+			<p>1. Use the most typing comfortable gesture that you get used to complete this task.</p>
+			<p>2. Green text means correct. Red text means incorrect and you suppose to use backspace to fix them.</p>
+			<p>3. You can press either space or enter for a newline.</p>
+			<p>4. Incorrect space is represented as a red underscore.</p>
+			<p>5. Be sure to press enter/space in the end of the last line.</p>
+			<p><span style="color:red">6. Please hit left shift heavily 3 times, with 1 second interval each (for time sync)</span></p>
+		</div>
+		<div style='width:100%; text-align:center; font-size:48px; margin-top:100px'>
+			Your name: <input id='user' type="text" style='font-size:48px' /><br/>
+			<input type="submit" value="I'm ready" style='font-size: 40px' onclick='contextSwitch()' />
+		</div>
+	</div>
+	<div id="typingPanel" style="width:100%; visibility:hidden">
+		
+		<h3 style='color:green'>Instruction: the following you see the article. Try to type exactly the same as the given article. When you press the first keystroke, the test begins. Right now it's case-insensitive, but you're encouraged to make it right</h3>
+
+		<div style="height:50px"></div>
+		<table style='border:0px'>
+			<tr id='meter' style='font-size:32px'>
+				<td style='width:300px'>Time: <span id='elapsedSec'>0</span> secs</td>
+				<td style='width:300px'>Total speed: <span id='totalSpeed'>0</span> k/s</td>
+				<td style='width:300px'>Left speed: <span id='leftSpeed'>0</span> k/s</td>
+			</tr>
+		</table>
+		<div style="height:50px"></div>
+	</div>
+</div>
+	
+<script>
+var specialChars = [16, 17, 91, 18, 93, 27, 9];
+var auxiliaryChars = {32:' ', 188:',', 190:'.', 191:'/', 186:';', 222:'\'', 219:'[', 221:']', 189:'-', 187:'=', 220:'\\'};
+var leftKeys = [49, 81, 65, 90, 50, 87, 83, 88, 51, 69, 68, 67, 52, 82, 70, 86, 53, 84, 71, 66];
+
+
+function handleKeyDown(e) {
+	//alert(String.fromCharCode(e.keyCode)+" --> "+e.keyCode);
+	//console.log(e, new Date());
+
+	// if finished, then return
+	if (curLine == tasks[taskNo].length)
+		return;
+
+	if (startTime == 0) {
+		startTime = e.timeStamp;
+		setTimeout(showOneSecondPassed, 1000);
+	}
+	logStr += e.timeStamp + "," + e.which + "," + e.keyCode + "," + e.location + "\n"
+	$("#stroke").val(logStr);
+	keyCount++;
+	if ($.inArray(e.keyCode, leftKeys) != -1)
+		leftKeyCount++;
+
+	if (e.keyCode == 8) {  // backspace
+		curAnswer = curAnswer.substr(0, curAnswer.length-1);
+		if (curAnswer.length <= firstIncorrectIdx)
+			firstIncorrectIdx = -1;
+		e.preventDefault();
+	}
+	else if ($.inArray(e.keyCode, specialChars) != -1)  // ctrl, shift, alt, esc, ...
+		keyCount--;
+	else if ( $.inArray(e.keyCode, [32, 13]) != -1) {  // space, newline
+		if (firstIncorrectIdx == -1 && tasks[taskNo][curLine].length == curAnswer.length) {
+			curLine++;
+			curAnswer = "";
+			if (curLine == tasks[taskNo].length) {
+				sendFin();
+				$('#elaspedSec').text( (e.timeStamp - startTime) / 1000.0 );
+				$('#meter').css('color', 'red');
+				alert('Congratuation! But please don\'t move for 3 seconds...');
+				sendData();
+			}
+			else {
+				if (curLine >= 4) {
+					console.log('come here')
+					$("#q" + (curLine-4)).css('display', 'none');
+					$("#a" + (curLine-4)).css('display', 'none');
+				}
+			}
+		}
+		else {
+			idx = curAnswer.length;
+			correctCode = tasks[taskNo][curLine].substr(idx, 1);  // if exceed the line boundary, it simply return an empty string
+			if (e.keyCode == 32) {
+				if (correctCode == ' ')
+					proposedKey = ' '; 
+				else
+					proposedKey = '_';
+			}
+			else {
+				proposedKey = '|';
+			}
+			if (firstIncorrectIdx == -1 && proposedKey != correctCode)
+				firstIncorrectIdx = idx;
+			curAnswer += proposedKey;
+		}
+	}
+	else {
+		proposedKey = '?';
+		if ( (65 <= e.keyCode && e.keyCode <= 90) // A-Z
+			|| (48 <= e.keyCode && e.keyCode <= 57)) // 0-9
+			proposedKey = String.fromCharCode(e.keyCode).toLowerCase();
+		else if (e.keyCode in auxiliaryChars)
+			proposedKey = auxiliaryChars[ e.keyCode ];
+
+		idx = curAnswer.length;
+		correctCode = tasks[taskNo][curLine].substr(idx, 1);  // if exceed the line boundary, it simply return an empty string
+
+		// case adjustion
+		if (firstIncorrectIdx == -1 && proposedKey.match(/[a-z]/i) && correctCode.match(/[a-zA-Z]/i) && proposedKey == correctCode.toLowerCase())
+			proposedKey = correctCode;
+
+		// show incorrect space
+		if ( proposedKey == ' ' && (correctCode != ' ' || firstIncorrectIdx != -1) )
+			proposedKey = '_';
+		
+		console.log("proposed", proposedKey, correctCode, firstIncorrectIdx);
+
+		if (firstIncorrectIdx == -1 && proposedKey != correctCode)
+			firstIncorrectIdx = idx;
+		curAnswer += proposedKey;
+	}
+
+	if (keyCount >= 2) {
+		t = ((keyCount-1) / (e.timeStamp - startTime) * 1000);
+		t = Math.round(t * 10) / 10;
+		$('#totalSpeed').text(t);
+	}
+	if (leftKeyCount >= 2) {
+		t = ((leftKeyCount-1) / (e.timeStamp - startTime) * 1000);
+		t = Math.round(t * 10) / 10;
+		$('#leftSpeed').text(t);
+	}
+
+	if (firstIncorrectIdx == -1) {
+		$("#ac" + curLine).text(curAnswer);
+		$("#aw" + curLine).text("");
+	}
+	else {
+		$("#ac" + curLine).text(curAnswer.substr(0, firstIncorrectIdx));
+		$("#aw" + curLine).text(curAnswer.substr(firstIncorrectIdx));
+	}
+	//console.log(curAnswer, curAnswer.length, e.keyCode, String.fromCharCode(e.keyCode), firstIncorrectIdx);
+	console.log(e);
+
+};
+
+function showOneSecondPassed() {
+	timeSecCnt++;
+	$('#elapsedSec').text(timeSecCnt);
+	if (curLine < tasks[taskNo].length)
+		setTimeout(showOneSecondPassed, 1000);
+}
+
+</script>
+</body>
+
+</html> 
