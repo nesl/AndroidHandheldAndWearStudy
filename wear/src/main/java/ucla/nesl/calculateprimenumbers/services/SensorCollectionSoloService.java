@@ -35,7 +35,7 @@ import ucla.nesl.calculateprimenumbers.TimeString;
  *           but not to the target app
  *     - re-think how to capture the time offset under batch sensing
  */
-public class SensorCollectionSoloService extends Service implements SensorEventListener{
+public class SensorCollectionSoloService extends Service implements SensorEventListener {
     private static final String TAG = "SensorTestingService";
 
     private final IBinder mBinder = new MyBinder();

@@ -55,11 +55,6 @@
             android:exported="true" >
         </service>
         <service
-            android:name=".services.SensorService"
-            android:enabled="true"
-            android:exported="true" >
-        </service>
-        <service
             android:name=".services.ReceivingDataFromWearCrazilyService"
             android:enabled="true"
             android:exported="true" >

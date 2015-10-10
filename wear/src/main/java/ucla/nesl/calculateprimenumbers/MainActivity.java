@@ -1,6 +1,6 @@
 package ucla.nesl.calculateprimenumbers;
 
-import ucla.nesl.calculateprimenumbers.activities.TypingDataCollectionActivity;
+import ucla.nesl.calculateprimenumbers.activities.SensingBatteryMeasurementActivity;
 
 
 //public class MainActivity extends PrimeComputationActivity {
@@ -12,5 +12,7 @@ import ucla.nesl.calculateprimenumbers.activities.TypingDataCollectionActivity;
 //public class MainActivity extends SensorCollectionSoloActivity {
 //public class MainActivity extends RealTimeAccActivity {
 //public class MainActivity extends TimeSyncTestActivity
-public class MainActivity extends TypingDataCollectionActivity {
+//public class MainActivity extends TypingDataCollectionActivity {
+//public class MainActivity extends SensorCollectionLocallyForOtherExperimentActivity {
+public class MainActivity extends SensingBatteryMeasurementActivity {
 }
