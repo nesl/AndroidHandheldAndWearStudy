@@ -21,7 +21,7 @@ public class KeepWearAwakeService extends Service implements
 
     private GoogleApiClient googleClient;
     private final String PATH_AGREEMENT_WITH_WEAR = "/message_path";
-    private final long wakeInterval = 3000L;
+    private final long wakeInterval = 10000L;
 
     public KeepWearAwakeService() {
     }

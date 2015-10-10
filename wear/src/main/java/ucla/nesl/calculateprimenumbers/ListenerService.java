@@ -9,17 +9,26 @@ import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.WearableListenerService;
 
 public class ListenerService extends WearableListenerService {
+    public static final boolean DEBUG = false;
     public ListenerService() {
-        Log.i("WearListenerService", "constructor of ListenerService");
+        if (DEBUG) {
+            Log.i("WearListenerService", "constructor of ListenerService");
+        }
+
     }
 
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
-        Log.i("WearListenerService", "oh yeah got in onMessageReceived()");
+        if (DEBUG) {
+            Log.i("WearListenerService", "oh yeah got in onMessageReceived()");
+        }
 
         if (messageEvent.getPath().equals("/message_path")) {
             final String message = new String(messageEvent.getData());
-            Log.i("WearListenerService", "got message: " + message);
+
+            if (DEBUG) {
+                Log.i("WearListenerService", "got message: " + message);
+            }
 
             // Broadcast message to wearable activity for display
             Intent messageIntent = new Intent();
@@ -34,6 +43,8 @@ public class ListenerService extends WearableListenerService {
 
     @Override
     public void onDataChanged(DataEventBuffer dataEvents) {
-        System.out.println("Recevive message3");
+        if (DEBUG) {
+            System.out.println("Recevive message3");
+        }
     }
 }

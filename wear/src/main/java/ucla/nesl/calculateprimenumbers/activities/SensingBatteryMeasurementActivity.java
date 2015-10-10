@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import ucla.nesl.calculateprimenumbers.R;
 import ucla.nesl.calculateprimenumbers.services.SensingBatteryMeasurementService;
+import ucla.nesl.calculateprimenumbers.services.SigMoMeasurementService;
 
 /**
  * Created by timestring on 4/21/15.
@@ -20,6 +21,7 @@ import ucla.nesl.calculateprimenumbers.services.SensingBatteryMeasurementService
 public class SensingBatteryMeasurementActivity extends Activity {
 
     private TextView mTextView;
+    private static final boolean SIGMO = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +37,11 @@ public class SensingBatteryMeasurementActivity extends Activity {
         });
         Intent intent = new Intent(SensingBatteryMeasurementActivity.this, SensingBatteryMeasurementService.class);
         startService(intent);
+
+        if (SIGMO) {
+            Intent intent1 = new Intent(SensingBatteryMeasurementActivity.this, SigMoMeasurementService.class);
+            startService(intent1);
+        }
 
 
         IntentFilter messageFilter = new IntentFilter(Intent.ACTION_SEND);
